@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item android:id="@+id/onlineUser"
+          android:title="@string/onlineUser"
+          android:icon="@drawable/icon_my_normal"
+        />
+    <item android:id="@+id/myPosition"
+          android:title="@string/myPosition"
+          android:icon="@drawable/icon_myloc"
+        />
+    <item android:id="@+id/satellite"
+          android:title="@string/satellite"
+          android:icon="@drawable/icon_satellite_on"
+        />
+    <item android:id="@+id/clearTrace"
+          android:title="@string/clearTrace"
+          android:icon="@drawable/icon_route_normal"
+        />
+    <item android:id="@+id/offlineMap"
+          android:title="@string/offlineMap"
+          android:icon="@drawable/map_menu_localmap"
+        />
+    <item android:id="@+id/exit"
+          android:title="@string/exit"
+          android:icon="@drawable/map_menu_exit"
+        />
+    
+</menu>
