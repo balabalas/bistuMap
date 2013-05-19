@@ -1,21 +1,28 @@
 package cn.edu.bistu.bistumap;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import cn.edu.bistu.bistumap.Util.Beatles;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.LocationManagerProxy;
+import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.SupportMapFragment;
 
-public class MapView extends FragmentActivity implements LocationSource {
+public class MyMapView extends FragmentActivity implements LocationSource, AMapLocationListener {
     
     private AMap amap;
     private LocationManagerProxy locationManager;
+    private OnLocationChangedListener pChangeListener;
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -39,7 +46,7 @@ public class MapView extends FragmentActivity implements LocationSource {
     
     private void setUpMap(){
         locationManager = LocationManagerProxy
-                .getInstance(MapView.this);
+                .getInstance(MyMapView.this);
         amap.setLocationSource(this);
         amap.setMyLocationEnabled(true);
     }
@@ -73,6 +80,9 @@ public class MapView extends FragmentActivity implements LocationSource {
     
     private void getMyPosiotn(){
         
+        locationManager.requestLocationUpdates(
+                LocationProviderProxy.AMapNetwork, 5000, 10, this);
+        
     }
     
     private void satelliteView(){
@@ -95,16 +105,65 @@ public class MapView extends FragmentActivity implements LocationSource {
     }
     
     private void exitMap(){
-        
+        Intent it = new Intent(this, MainActivity.class);
+        it.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        it.putExtra("exit", true);
+        startActivity(it);
+        finish();
     }
     
     @Override
-    public void activate(OnLocationChangedListener arg0) {
-        
+    public void activate(OnLocationChangedListener listener) {
+        pChangeListener = listener;
+        if (locationManager == null) {
+            locationManager = LocationManagerProxy.getInstance(this);
+        }
+        locationManager.requestLocationUpdates(
+                LocationProviderProxy.AMapNetwork, 5000, 10, this);
     }
 
     @Override
     public void deactivate() {
+        pChangeListener = null;
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+            locationManager.destory();
+        }
+        locationManager = null;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation alocation) {
+        if (pChangeListener != null) {
+            pChangeListener.onLocationChanged(alocation);
+        }
+        
+        if(alocation != null){
+            Double geoLat = alocation.getLatitude();
+            Double geoLng = alocation.getLongitude();
+            Log.d("bistu", "Latitude: " + geoLat + "  Longitude: " + geoLng);
+        }
+        
         
     }
     

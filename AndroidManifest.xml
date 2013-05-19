@@ -43,7 +43,7 @@
         </activity>
         
         <activity
-            android:name=".MapView"
+            android:name=".MyMapView"
             android:theme="@android:style/Theme.NoTitleBar"
             ></activity>
         

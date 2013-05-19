@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent it = new Intent(MainActivity.this, MapView.class);
+                Intent it = new Intent(MainActivity.this, MyMapView.class);
                 startActivity(it);
             }
         });
