@@ -48,7 +48,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         locationManager = LocationManagerProxy
                 .getInstance(MyMapView.this);
         amap.setLocationSource(this);
-        amap.setMyLocationEnabled(true);
+        amap.setMyLocationEnabled(false);
     }
     
     @Override
@@ -80,8 +80,16 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     
     private void getMyPosiotn(){
         
-        locationManager.requestLocationUpdates(
+        if(!Beatles.GET_MY_POSITION){
+            Beatles.GET_MY_POSITION = true;
+            
+            locationManager.requestLocationUpdates(
                 LocationProviderProxy.AMapNetwork, 5000, 10, this);
+        }
+        else {
+            Beatles.GET_MY_POSITION = false;
+            deactivate();
+        }
         
     }
     
@@ -158,7 +166,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
             pChangeListener.onLocationChanged(alocation);
         }
         
-        if(alocation != null){
+        if(alocation != null && Beatles.GET_MY_POSITION){
             Double geoLat = alocation.getLatitude();
             Double geoLng = alocation.getLongitude();
             Log.d("bistu", "Latitude: " + geoLat + "  Longitude: " + geoLng);

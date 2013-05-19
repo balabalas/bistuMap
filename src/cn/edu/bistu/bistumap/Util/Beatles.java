@@ -5,9 +5,12 @@ import com.amap.api.maps.model.LatLng;
 public class Beatles {
     public static final int POISEARCH = 1000;
     
-    // set setallite view or normal view.
+    // set satellite view or normal view.
     public static boolean VIEW = false;
-
+    
+    // set Get my position or not.
+    public static boolean GET_MY_POSITION = false;
+    
     public static final int ERROR = 1001;
     public static final int FIRST_LOCATION = 1002;
 
