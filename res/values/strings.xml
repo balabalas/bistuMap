@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BistuMap</string>
+    <string name="action_settings">设置</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="map_not_ready">地图初始化失败</string>
+    <string name="checkMap">查看地图</string>
+    <string name="onlineUser">在线用户</string>
+    <string name="myPosition">我的位置</string>
+    <string name="satellite">切换视图</string>
+    <string name="clearTrace">清除轨迹</string>
+    <string name="offlineMap">离线地图</string>
+    <string name="exit">退出</string>
+    <string name="logoDes">北信</string>
+
+</resources>
