@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import cn.edu.bistu.bistumap.Util.Beatles;
 
 import com.amap.api.location.LocationManagerProxy;
 import com.amap.api.maps.AMap;
@@ -75,7 +76,14 @@ public class MapView extends FragmentActivity implements LocationSource {
     }
     
     private void satelliteView(){
-        
+        if(!Beatles.VIEW){
+            Beatles.VIEW = true;
+            amap.setMapType(AMap.MAP_TYPE_SATELLITE);
+        }
+        else {
+            Beatles.VIEW = false;
+            amap.setMapType(AMap.MAP_TYPE_NORMAL);
+        }
     }
     
     private void clearTrace(){
