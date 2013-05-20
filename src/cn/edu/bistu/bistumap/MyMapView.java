@@ -1,6 +1,7 @@
 package cn.edu.bistu.bistumap;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -17,12 +18,17 @@ import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.SupportMapFragment;
+import com.amap.api.maps.UiSettings;
+import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.PolylineOptions;
 
 public class MyMapView extends FragmentActivity implements LocationSource, AMapLocationListener {
     
     private AMap amap;
     private LocationManagerProxy locationManager;
     private OnLocationChangedListener pChangeListener;
+    private UiSettings uiSetting;
+    private LatLng lastLatIng;
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -46,8 +52,11 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private void setUpMap(){
         locationManager = LocationManagerProxy
                 .getInstance(MyMapView.this);
+        uiSetting = amap.getUiSettings();
         amap.setLocationSource(this);
         amap.setMyLocationEnabled(true);
+        uiSetting.setMyLocationButtonEnabled(false);
+        uiSetting.setZoomControlsEnabled(false);
     }
     
     @Override
@@ -169,15 +178,49 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
 
     @Override
     public void onLocationChanged(AMapLocation alocation) {
+        
+        LatLng tLatLng = null;
+        boolean drawLine = false;
+        PolylineOptions tmpOptions = new PolylineOptions();
+        
         if (pChangeListener != null) {
             pChangeListener.onLocationChanged(alocation);
         }
         
         if(alocation != null && Beatles.GET_MY_POSITION){
+            
             Double geoLat = alocation.getLatitude();
             Double geoLng = alocation.getLongitude();
+            tLatLng = new LatLng(geoLat, geoLng);
+            drawLine = compareLatLngs(lastLatIng, tLatLng);
+            
+            if(drawLine){
+                tmpOptions.add(lastLatIng).add(tLatLng).color(Color.RED).width(5);
+                amap.addPolyline(tmpOptions);
+                lastLatIng = tLatLng;
+            }
+            else {
+                Log.d("bistu", "Position doesn't change!!!");
+            }
+            
             Log.d("bistu", "Latitude: " + geoLat + "  Longitude: " + geoLng);
         }
+    }
+    
+    private boolean compareLatLngs(LatLng old, LatLng fresh){
+        
+        boolean result = false;
+        
+        if(old != null && fresh != null){
+            if(old.latitude != fresh.latitude || old.longitude != fresh.longitude){
+                result = true;
+            }
+        }
+        else{
+            old = fresh;
+        }
+        
+        return result;
     }
     
 }

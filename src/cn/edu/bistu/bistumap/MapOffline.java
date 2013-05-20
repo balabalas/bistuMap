@@ -63,8 +63,8 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
                 boolean start = false;
                 start = mOffline.downloadByCityName(city);
                 if(!start){
-//                    Toast.makeText(MapOffline.this, "开启下载失败，请检查网络是否开启！",
-//                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapOffline.this, "开启下载失败，请检查网络是否开启！",
+                            Toast.LENGTH_SHORT).show();
                     Log.d("bistu", "开启下载失败，请检查网络是否开启！");
                 }
                 else {
@@ -179,8 +179,8 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
             break;
         case MOfflineMapStatus.ERROR:
             Log.d("bistu", "下载出错");
-//            Toast.makeText(this, "下载出错",
-//                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "离线地图下载出错",
+                    Toast.LENGTH_SHORT).show();
             break;
         default:
             break;
