@@ -26,7 +26,6 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     
     @Override
     protected void onCreate(Bundle bundle) {
-        // TODO Auto-generated method stub
         super.onCreate(bundle);
         setContentView(R.layout.mapview);
         init();
@@ -48,7 +47,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         locationManager = LocationManagerProxy
                 .getInstance(MyMapView.this);
         amap.setLocationSource(this);
-        amap.setMyLocationEnabled(false);
+        amap.setMyLocationEnabled(true);
     }
     
     @Override
@@ -171,8 +170,6 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
             Double geoLng = alocation.getLongitude();
             Log.d("bistu", "Latitude: " + geoLat + "  Longitude: " + geoLng);
         }
-        
-        
     }
     
 }
