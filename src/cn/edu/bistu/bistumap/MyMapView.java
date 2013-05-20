@@ -108,7 +108,15 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     }
     
     private void offlineMap(){
-        
+        Intent map = new Intent(MyMapView.this, MapOffline.class);
+        if(!Beatles.OFFLINE_MAP_DOWNLOADING){
+            Beatles.OFFLINE_MAP_DOWNLOADING = true;
+            startService(map);
+        }
+        else {
+            Beatles.OFFLINE_MAP_DOWNLOADING = false;
+            stopService(map);
+        }
     }
     
     private void exitMap(){

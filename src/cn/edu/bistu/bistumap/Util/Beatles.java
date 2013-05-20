@@ -8,6 +8,9 @@ public class Beatles {
     // set satellite view or normal view.
     public static boolean VIEW = false;
     
+    // offline map download status
+    public static boolean OFFLINE_MAP_DOWNLOADING = false;
+    
     // set Get my position or not.
     public static boolean GET_MY_POSITION = false;
     

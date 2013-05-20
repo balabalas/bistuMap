@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -40,26 +41,51 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
         MapsInitializer.sdcardDir = getSdCacheDir(this);
         mOffline = new OfflineMapManager(this, this);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean start = false;
+        
         downCity = mOffline.getItemByCityName(city);
         
         boolean shouldDown = judgeVersion();
         
         if(shouldDown){
-            start = mOffline.downloadByCityName(city);
-            if(!start){
-                Toast.makeText(MapOffline.this, "开启下载失败，请检查网络是否开启！",
-                        Toast.LENGTH_SHORT).show();
-                Log.d("bistu", "offline map downloads error!");
-            }
-            else {
-                Log.d("bistu", "offline map downloading!");
-            }
+            downloadMap();
         }
         else {
             Toast.makeText(MapOffline.this, "离线地图已下载！",
                     Toast.LENGTH_SHORT).show();
             Log.d("bistu", "offline map has downloaded!");
+        }
+    }
+    
+    private void downloadMap(){
+        Thread t = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                boolean start = false;
+                start = mOffline.downloadByCityName(city);
+                if(!start){
+//                    Toast.makeText(MapOffline.this, "开启下载失败，请检查网络是否开启！",
+//                            Toast.LENGTH_SHORT).show();
+                    Log.d("bistu", "开启下载失败，请检查网络是否开启！");
+                }
+                else {
+                    Log.d("bistu", "offline map downloading!");
+                }
+            }
+        });
+        t.start();
+    }
+    
+    private void putPrefersAfterDownloaded(){
+        Editor editor = sharedPref.edit();
+        editor.putString("cityVersion", cityVersion);
+        editor.putInt("cityState", cityState);
+        editor.putLong("citySize", citySize);
+        boolean status = editor.commit();
+        if(status){
+            Log.d("bistu", "Editor success!");
+        }
+        else {
+            Log.d("bistu", "Editor failed!");
         }
     }
     
@@ -95,7 +121,6 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
     
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
     }
     
@@ -119,6 +144,9 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
             if(result){
                 Log.d("bistu", "offline map dir done!");
             }
+            else {
+                Log.d("bistu", "offline map dir failed!");
+            }
             
             return minimapDir.toString() + "/";
         } else {
@@ -128,22 +156,31 @@ public class MapOffline extends Service implements OfflineMapDownloadListener {
 
     @Override
     public void onDownload(int status, int completeCode) {
+        
+        if(completeCode == 100){
+            putPrefersAfterDownloaded();
+        }
+        
         switch (status) {
         case MOfflineMapStatus.LOADING:
-            Toast.makeText(this, "正在下载," + "已完成：" + completeCode + "%",
-                    Toast.LENGTH_SHORT).show();
+            Log.d("bistu", "正在下载," + "已完成：" + completeCode + "%");
+//            Toast.makeText(this, "正在下载," + "已完成：" + completeCode + "%",
+//                    Toast.LENGTH_SHORT).show();
             break;
         case MOfflineMapStatus.PAUSE:
-            Toast.makeText(this, "暂停",
-                    Toast.LENGTH_SHORT).show();
+            Log.d("bistu", "暂停");
+//            Toast.makeText(this, "暂停",
+//                    Toast.LENGTH_SHORT).show();
             break;
         case MOfflineMapStatus.STOP:
-            Toast.makeText(this, "停止",
-                    Toast.LENGTH_SHORT).show();
+            Log.d("bistu", "停止");
+//            Toast.makeText(this, "停止",
+//                    Toast.LENGTH_SHORT).show();
             break;
         case MOfflineMapStatus.ERROR:
-            Toast.makeText(this, "下载出错",
-                    Toast.LENGTH_SHORT).show();
+            Log.d("bistu", "下载出错");
+//            Toast.makeText(this, "下载出错",
+//                    Toast.LENGTH_SHORT).show();
             break;
         default:
             break;
