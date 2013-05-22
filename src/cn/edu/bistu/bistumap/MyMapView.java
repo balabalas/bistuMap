@@ -1,5 +1,7 @@
 package cn.edu.bistu.bistumap;
 
+import java.util.ArrayList;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -20,6 +22,7 @@ import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.SupportMapFragment;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 
 public class MyMapView extends FragmentActivity implements LocationSource, AMapLocationListener {
@@ -29,6 +32,8 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private OnLocationChangedListener pChangeListener;
     private UiSettings uiSetting;
     private LatLng lastLatIng;
+    private PolylineOptions polylineOptions;
+    private Polyline polyline = null;
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -43,6 +48,8 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                     .findFragmentById(R.id.theMap)).getMap();
             
             if(null != amap){
+                polylineOptions = new PolylineOptions();
+                polylineOptions.color(Color.BLUE).width(5);
                 setUpMap();
             }
             
@@ -57,6 +64,9 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         amap.setMyLocationEnabled(true);
         uiSetting.setMyLocationButtonEnabled(false);
         uiSetting.setZoomControlsEnabled(false);
+        polylineOptions.add(new LatLng(39.9588, 116.3181), Beatles.BEIJING,
+                        new LatLng(39.9588, 116.5181)).color(Color.RED).width(5);
+        polyline = amap.addPolyline(polylineOptions);
     }
     
     @Override
@@ -88,16 +98,16 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     
     private void getMyPosiotn(){
         
-        if(!Beatles.GET_MY_POSITION){
-            Beatles.GET_MY_POSITION = true;
+//        if(!Beatles.GET_MY_POSITION){
+//            Beatles.GET_MY_POSITION = true;
             
             locationManager.requestLocationUpdates(
                 LocationProviderProxy.AMapNetwork, 5000, 10, this);
-        }
-        else {
-            Beatles.GET_MY_POSITION = false;
-            deactivate();
-        }
+//        }
+//        else {
+//            Beatles.GET_MY_POSITION = false;
+//            deactivate();
+//        }
         
     }
     
@@ -113,7 +123,9 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     }
     
     private void clearTrace(){
-        
+        if(polyline != null){
+            polyline.remove();
+        }
     }
     
     private void offlineMap(){
@@ -181,23 +193,37 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         
         LatLng tLatLng = null;
         boolean drawLine = false;
-        PolylineOptions tmpOptions = new PolylineOptions();
         
         if (pChangeListener != null) {
             pChangeListener.onLocationChanged(alocation);
         }
         
-        if(alocation != null && Beatles.GET_MY_POSITION){
+        /**
+         * can draw line here. but can't draw blow if section.
+         * **/
+//        amap.addPolyline((new PolylineOptions())
+//                .add(new LatLng(39.9588, 116.3181), Beatles.BEIJING,
+//                        new LatLng(39.9588, 116.5181)).color(Color.RED)
+//                .width(5));
+        
+        if(alocation != null){
             
             Double geoLat = alocation.getLatitude();
             Double geoLng = alocation.getLongitude();
             tLatLng = new LatLng(geoLat, geoLng);
             drawLine = compareLatLngs(lastLatIng, tLatLng);
+            lastLatIng = tLatLng;
             
             if(drawLine){
-                tmpOptions.add(lastLatIng).add(tLatLng).color(Color.RED).width(5);
-                amap.addPolyline(tmpOptions);
-                lastLatIng = tLatLng;
+                if(polyline != null){
+                    polyline.remove();
+                }
+                polylineOptions.add(lastLatIng, tLatLng).color(Color.BLUE).width(5);
+                polyline = amap.addPolyline(polylineOptions);
+                
+                ArrayList<LatLng> li = (ArrayList<LatLng>)polylineOptions.getPoints();
+                
+                Log.d("bistu", "Position changed!!! and " + li.size());
             }
             else {
                 Log.d("bistu", "Position doesn't change!!!");
@@ -218,6 +244,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         }
         else{
             old = fresh;
+            result = false;
         }
         
         return result;
