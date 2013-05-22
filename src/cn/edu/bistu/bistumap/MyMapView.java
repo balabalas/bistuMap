@@ -21,7 +21,9 @@ import com.amap.api.maps.AMap;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.SupportMapFragment;
 import com.amap.api.maps.UiSettings;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 
@@ -64,6 +66,11 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         amap.setMyLocationEnabled(true);
         uiSetting.setMyLocationButtonEnabled(false);
         uiSetting.setZoomControlsEnabled(false);
+        amap.addMarker(new MarkerOptions()
+        .position(Beatles.Bistu)
+        .title("Marker2 ")
+        .icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         polylineOptions.add(new LatLng(39.9588, 116.3181), Beatles.BEIJING,
                         new LatLng(39.9588, 116.5181)).color(Color.RED).width(5);
         polyline = amap.addPolyline(polylineOptions);

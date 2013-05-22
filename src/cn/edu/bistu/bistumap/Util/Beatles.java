@@ -30,7 +30,7 @@ public class Beatles {
     public static final int BUSLINE_DETAIL_RESULT = 6001;
     public static final int BUSLINE_ERROR_RESULT = 6002;
     
-    public static final LatLng Bistu = new LatLng(116.353079,40.044223); //北信小营坐标
+    public static final LatLng Bistu = new LatLng(40.037707,116.346654); //北信小营坐标
     public static final LatLng BistuJXQ = new LatLng(116.388176,39.995218); //北信健翔桥校区
     public static final LatLng BistuQH = new LatLng(116.349001,40.049832); //北信清河校区
     public static final LatLng BEIJING = new LatLng(39.90403, 116.407525);// 北京市经纬度
