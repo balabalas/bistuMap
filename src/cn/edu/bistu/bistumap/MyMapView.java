@@ -36,6 +36,9 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private LatLng lastLatIng;
     private PolylineOptions polylineOptions;
     private Polyline polyline = null;
+    private OnlineUser online;
+    private Thread userThread = null;
+    private boolean userState = false;
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -66,11 +69,12 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         amap.setMyLocationEnabled(true);
         uiSetting.setMyLocationButtonEnabled(false);
         uiSetting.setZoomControlsEnabled(false);
-        amap.addMarker(new MarkerOptions()
-        .position(Beatles.Bistu)
-        .title("Marker2 ")
-        .icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        amap.addMarker(new MarkerOptions().position(Beatles.Bistu).title("Main ")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        amap.addMarker(new MarkerOptions().position(Beatles.BistuJXQ).title("JXQ ")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        amap.addMarker(new MarkerOptions().position(Beatles.BistuQH).title("QH ")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         polylineOptions.add(new LatLng(39.9588, 116.3181), Beatles.BEIJING,
                         new LatLng(39.9588, 116.5181)).color(Color.RED).width(5);
         polyline = amap.addPolyline(polylineOptions);
@@ -100,6 +104,21 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     }
     
     private void getOnlineUsers(){
+        
+        if(userThread == null){
+            userThread = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        userState = online.connect();
+                        Log.d(Beatles.LOG_TAG, "L114 connect server: " + userState);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            userThread.start();
+        }
         
     }
     
@@ -230,13 +249,13 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                 
                 ArrayList<LatLng> li = (ArrayList<LatLng>)polylineOptions.getPoints();
                 
-                Log.d("bistu", "Position changed!!! and " + li.size());
+                Log.d(Beatles.LOG_TAG, "Position changed!!! and " + li.size());
             }
             else {
-                Log.d("bistu", "Position doesn't change!!!");
+                Log.d(Beatles.LOG_TAG, "Position doesn't change!!!");
             }
             
-            Log.d("bistu", "Latitude: " + geoLat + "  Longitude: " + geoLng);
+            Log.d(Beatles.LOG_TAG, "Latitude: " + geoLat + "  Longitude: " + geoLng);
         }
     }
     
@@ -256,5 +275,15 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         
         return result;
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(userState){
+            online.disconnect();
+        }
+    }
+    
+    
     
 }

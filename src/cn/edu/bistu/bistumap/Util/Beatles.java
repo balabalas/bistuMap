@@ -4,6 +4,7 @@ import com.amap.api.maps.model.LatLng;
 
 public class Beatles {
     public static final int POISEARCH = 1000;
+    public static final String LOG_TAG = "bistu";
     
     // set satellite view or normal view.
     public static boolean VIEW = false;
@@ -29,10 +30,10 @@ public class Beatles {
     public static final int BUSLINE_RESULT = 6000;
     public static final int BUSLINE_DETAIL_RESULT = 6001;
     public static final int BUSLINE_ERROR_RESULT = 6002;
-    
-    public static final LatLng Bistu = new LatLng(40.037707,116.346654); //北信小营坐标
-    public static final LatLng BistuJXQ = new LatLng(116.388176,39.995218); //北信健翔桥校区
-    public static final LatLng BistuQH = new LatLng(116.349001,40.049832); //北信清河校区
+    //116.388755,39.995114
+    public static final LatLng Bistu = new LatLng(40.038951, 116.346443); //北信小营坐标
+    public static final LatLng BistuJXQ = new LatLng(39.988707, 116.382025); //北信健翔桥校区
+    public static final LatLng BistuQH = new LatLng(40.043468, 116.342753); //北信清河校区
     public static final LatLng BEIJING = new LatLng(39.90403, 116.407525);// 北京市经纬度
     public static final LatLng ZHONGGUANCUN = new LatLng(39.983456, 116.3154950);// 北京市中关村经纬度
     public static final LatLng SHANGHAI = new LatLng(31.239879, 121.499674);// 上海市经纬度
