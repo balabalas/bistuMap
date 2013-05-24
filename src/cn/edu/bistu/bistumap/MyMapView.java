@@ -2,6 +2,9 @@ package cn.edu.bistu.bistumap;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -45,6 +48,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
         super.onCreate(bundle);
         setContentView(R.layout.mapview);
         init();
+        online = new OnlineUser();
     }
     
     private void init(){
@@ -106,6 +110,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private void getOnlineUsers(){
         
         if(userThread == null){
+            Log.d(Beatles.LOG_TAG, "L123 thread hasn't exist: " + userState);
             userThread = new Thread(new Runnable(){
                 @Override
                 public void run() {
@@ -118,6 +123,9 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                 }
             });
             userThread.start();
+        }
+        else {
+            Log.d(Beatles.LOG_TAG, "L123 thread has exist: " + userState);
         }
         
     }
@@ -247,15 +255,27 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                 polylineOptions.add(lastLatIng, tLatLng).color(Color.BLUE).width(5);
                 polyline = amap.addPolyline(polylineOptions);
                 
+                if(online != null){
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("latitude", geoLat);
+                        obj.put("longitude", geoLng);
+                        online.send(obj.toString());
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                
                 ArrayList<LatLng> li = (ArrayList<LatLng>)polylineOptions.getPoints();
                 
                 Log.d(Beatles.LOG_TAG, "Position changed!!! and " + li.size());
             }
             else {
-                Log.d(Beatles.LOG_TAG, "Position doesn't change!!!");
+//                Log.d(Beatles.LOG_TAG, "Position doesn't change!!!");
             }
             
-            Log.d(Beatles.LOG_TAG, "Latitude: " + geoLat + "  Longitude: " + geoLng);
+//            Log.d(Beatles.LOG_TAG, "Latitude: " + geoLat + "  Longitude: " + geoLng);
         }
     }
     
