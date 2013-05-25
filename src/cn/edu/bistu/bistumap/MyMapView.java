@@ -1,5 +1,11 @@
 package cn.edu.bistu.bistumap;
 
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
+
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -39,16 +45,15 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private LatLng lastLatIng;
     private PolylineOptions polylineOptions;
     private Polyline polyline = null;
-    private OnlineUser online;
     private Thread userThread = null;
-    private boolean userState = false;
+    private SocketIO socket = null;
+    private boolean SOCKET_STATUS = false;
     
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.mapview);
         init();
-        online = new OnlineUser();
     }
     
     private void init(){
@@ -110,13 +115,12 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private void getOnlineUsers(){
         
         if(userThread == null){
-            Log.d(Beatles.LOG_TAG, "L123 thread hasn't exist: " + userState);
             userThread = new Thread(new Runnable(){
                 @Override
                 public void run() {
                     try {
-                        userState = online.connect();
-                        Log.d(Beatles.LOG_TAG, "L114 connect server: " + userState);
+                        SOCKET_STATUS = onlineUser();
+                        Log.d(Beatles.LOG_TAG, "L114 connect server: " + SOCKET_STATUS);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -125,9 +129,69 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
             userThread.start();
         }
         else {
-            Log.d(Beatles.LOG_TAG, "L123 thread has exist: " + userState);
+            Log.d(Beatles.LOG_TAG, "L128 thread has exist: " + SOCKET_STATUS);
         }
         
+    }
+    
+    private boolean onlineUser(){
+        
+        boolean connected = false;
+        
+        try {
+            socket  = new SocketIO("http://dmdgeeker.com:7887/");
+            socket.connect(new IOCallback(){
+                @Override
+                public void on(String evt, IOAcknowledge ack, Object... args) {
+                    Log.d(Beatles.LOG_TAG, "Server evt:" + evt + "  params: " + args.length);
+                    if(evt.equals("callback")){
+                        Log.d(Beatles.LOG_TAG, "CB callback: " + args[0].toString());
+                    }
+                    else if(evt.equals("id")){
+                        Log.d(Beatles.LOG_TAG, "CB evt is id." + args[0].toString());
+                    }
+                }
+
+                @Override
+                public void onConnect() {
+                    Log.d(Beatles.LOG_TAG, "Connect the server.");
+                }
+
+                @Override
+                public void onDisconnect() {
+                    Log.d(Beatles.LOG_TAG, "Connection terminated.");
+                }
+
+                @Override
+                public void onError(SocketIOException err) {
+                    Log.d(Beatles.LOG_TAG, "Connection error!.");
+                }
+
+                @Override
+                public void onMessage(String arg, IOAcknowledge ack) {
+                    Log.d(Beatles.LOG_TAG, "Connection String." + arg);
+                }
+
+                @Override
+                public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
+                    Log.d(Beatles.LOG_TAG, "Connection jsonObject.");
+                }
+                
+            });
+            
+            
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        
+        if(socket != null){
+            connected = true;
+        }
+        else{
+            connected = false;
+        }
+        
+        return connected;
     }
     
     private void getMyPosiotn(){
@@ -204,22 +268,22 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
 
     @Override
     public void onLocationChanged(Location location) {
-        
+        Log.d(Beatles.LOG_TAG, "Location changed.");
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        
+        Log.d(Beatles.LOG_TAG, "Status changed.");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        
+        Log.d(Beatles.LOG_TAG, "Provider is enable.");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        
+        Log.d(Beatles.LOG_TAG, "Provider is not enable.");
     }
 
     @Override
@@ -255,14 +319,20 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                 polylineOptions.add(lastLatIng, tLatLng).color(Color.BLUE).width(5);
                 polyline = amap.addPolyline(polylineOptions);
                 
-                if(online != null){
+                if(SOCKET_STATUS){
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("latitude", geoLat);
                         obj.put("longitude", geoLng);
-                        online.send(obj.toString());
+                        
+                        if(socket != null){
+                            socket.emit("update", obj.toString());
+                        }
+                        else {
+                            Log.d(Beatles.LOG_TAG, "socket is null.");
+                        }
+                        
                     } catch (JSONException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -299,8 +369,10 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     @Override
     protected void onStop() {
         super.onStop();
-        if(userState){
-            online.disconnect();
+        if(SOCKET_STATUS){
+//            online.disconnect();
+            socket = null;
+            SOCKET_STATUS = false;
         }
     }
     
