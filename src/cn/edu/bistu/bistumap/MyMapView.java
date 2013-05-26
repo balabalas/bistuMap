@@ -48,6 +48,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     private Thread userThread = null;
     private SocketIO socket = null;
     private boolean SOCKET_STATUS = false;
+    private String SOCKET_ID = "";
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -143,12 +144,13 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
             socket.connect(new IOCallback(){
                 @Override
                 public void on(String evt, IOAcknowledge ack, Object... args) {
-                    Log.d(Beatles.LOG_TAG, "Server evt:" + evt + "  params: " + args.length);
+//                    Log.d(Beatles.LOG_TAG, "Server evt:" + evt + "  params: " + args.length);
                     if(evt.equals("callback")){
-                        Log.d(Beatles.LOG_TAG, "CB callback: " + args[0].toString());
+                        Log.d(Beatles.LOG_TAG, "CB callback-->" + args[0].toString());
                     }
                     else if(evt.equals("id")){
-                        Log.d(Beatles.LOG_TAG, "CB evt is id." + args[0].toString());
+                        SOCKET_ID = args[0].toString();
+                        Log.d(Beatles.LOG_TAG, "CB id = " + args[0].toString());
                     }
                 }
 
@@ -159,7 +161,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
 
                 @Override
                 public void onDisconnect() {
-                    Log.d(Beatles.LOG_TAG, "Connection terminated.");
+                    Log.d(Beatles.LOG_TAG, "Connection disconnect.");
                 }
 
                 @Override
@@ -326,7 +328,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                         obj.put("longitude", geoLng);
                         
                         if(socket != null){
-                            socket.emit("update", obj.toString());
+                            socket.emit("update", obj.toString() + " -- id: " + SOCKET_ID);
                         }
                         else {
                             Log.d(Beatles.LOG_TAG, "socket is null.");
@@ -337,9 +339,9 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
                     }
                 }
                 
-                ArrayList<LatLng> li = (ArrayList<LatLng>)polylineOptions.getPoints();
-                
-                Log.d(Beatles.LOG_TAG, "Position changed!!! and " + li.size());
+//                ArrayList<LatLng> li = (ArrayList<LatLng>)polylineOptions.getPoints();
+//                
+//                Log.d(Beatles.LOG_TAG, "Position changed!!! and " + li.size());
             }
             else {
 //                Log.d(Beatles.LOG_TAG, "Position doesn't change!!!");
@@ -370,7 +372,7 @@ public class MyMapView extends FragmentActivity implements LocationSource, AMapL
     protected void onStop() {
         super.onStop();
         if(SOCKET_STATUS){
-//            online.disconnect();
+            socket.disconnect();
             socket = null;
             SOCKET_STATUS = false;
         }
